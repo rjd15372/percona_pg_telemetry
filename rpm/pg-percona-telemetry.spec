@@ -21,9 +21,11 @@ Name:           %{sname}
 BuildRequires: %{pg_name}-devel
 BuildRequires: clang
 BuildRequires: llvm
+%if 0%{?suse_version}
+BuildRequires: chrpath
+%endif
 
 Requires:       percona-telemetry-agent
-Provides:       %{sname}%{pgrel}
 Conflicts:      %{sname}%{pgrel}
 Obsoletes:      %{sname}%{pgrel} <= %{version}-%{release}
 Epoch:          1
@@ -47,6 +49,13 @@ sed -i 's:PG_CONFIG = pg_config:PG_CONFIG = /usr/pgsql-%{pgrel}/bin/pg_config:' 
 %{__make} USE_PGXS=1 %{?_smp_mflags} install DESTDIR=%{buildroot}
 %{__install} -d %{buildroot}%{pginstdir}/share/extension
 %{__install} -m 755 README.md %{buildroot}%{pginstdir}/share/extension/README-percona_pg_telemetry
+%if 0%{?suse_version}
+# Add ldconfig entry for PostgreSQL library path
+%{__install} -d %{buildroot}%{_sysconfdir}/ld.so.conf.d
+echo "%{pginstdir}/lib" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/percona-postgresql%{pgrel}.conf
+# Strip RPATH since we're using system-wide library path configuration
+chrpath --delete %{buildroot}%{pginstdir}/lib/percona_pg_telemetry.so 2>/dev/null || :
+%endif
 
 
 %clean
@@ -62,20 +71,39 @@ if [ $1 == 1 ]; then
 fi
 
 %post -n %{sname}%{pgrel}
-usermod -a -G percona-telemetry postgres
-install -d -m 2775 -o postgres -g percona-telemetry /usr/local/percona/telemetry/pg
+if getent group percona-telemetry > /dev/null 2>&1; then
+  usermod -a -G percona-telemetry postgres
+  install -d -m 2775 -o postgres -g percona-telemetry /usr/local/percona/telemetry/pg
+else
+  install -d -m 2775 -o postgres -g postgres /usr/local/percona/telemetry/pg
+fi
+%if 0%{?suse_version}
+# Update dynamic linker cache for new library path
+/sbin/ldconfig
+%endif
 
 %postun -n %{sname}%{pgrel}
 rm -rf /usr/local/percona/telemetry/pg
+%if 0%{?suse_version}
+# Update dynamic linker cache after package removal
+/sbin/ldconfig
+%endif
 
 %files
 %defattr(755,root,root,755)
+%dir %{pginstdir}/lib
+%dir %{pginstdir}/lib/bitcode/percona_pg_telemetry
+%dir %{pginstdir}/share
+%dir %{pginstdir}/share/extension
 %doc %{pginstdir}/share/extension/README-percona_pg_telemetry
 %{pginstdir}/lib/percona_pg_telemetry.so
 %{pginstdir}/share/extension/percona_pg_telemetry--*.sql
 %{pginstdir}/share/extension/percona_pg_telemetry.control
 %{pginstdir}/lib/bitcode/percona_pg_telemetry*.bc
 %{pginstdir}/lib/bitcode/percona_pg_telemetry/*.bc
+%if 0%{?suse_version}
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/percona-postgresql%{pgrel}.conf
+%endif
 
 
 %changelog
