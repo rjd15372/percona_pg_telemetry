@@ -1,4 +1,4 @@
-Source: percona-pg-telemetry-@BUILD_FLAVOR@
+Source: percona-pg-telemetry
 Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
