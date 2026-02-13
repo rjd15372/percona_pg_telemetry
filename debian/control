@@ -3,14 +3,12 @@ Section: database
 Priority: optional
 Maintainer: Percona Development Team <info@percona.com>
 Build-Depends:
- debhelper (>= 9),
- postgresql-server-dev-17 | percona-postgresql-server-dev-17,
+ debhelper (>= 9)
 
-Package: percona-pg-telemetry-17
+Package: percona-pg-telemetry-@BUILD_FLAVOR@
 Architecture: any
 Depends:
- percona-telemetry-agent,
- postgresql-17 | percona-postgresql-17,
+ percona-telemetry-agent, percona-postgresql-@BUILD_FLAVOR@,
  ${misc:Depends},
  ${shlibs:Depends},
 Description: Percona telemetry extension for PostgreSQL 17
