@@ -1,6 +1,6 @@
 Format: 3.0 (native)
 Source: percona-pg-telemetry
-Binary: percona-pg-telemetry
+Binary: percona-pg-telemetry@BUILD_FLAVOR@
 Architecture: any
 Version: 1.2.0
 Debtransform-Release: 1
