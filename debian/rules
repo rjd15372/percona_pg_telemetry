@@ -5,14 +5,7 @@
 
 export USE_PGXS=1
 
-# Extract PG version from BUILD_FLAVOR (percona-postgresql17 -> 17)
-PG_VERSION := $(shell echo "$(BUILD_FLAVOR)" | sed 's/^percona-postgresql//')
-
-# Generate control file from control.in template
-# debian/control: debian/control.in
-# 	sed -e 's/@PG_VERSION@/$(PG_VERSION)/g' \
-# 	    -e 's/@BUILD_FLAVOR@/$(BUILD_FLAVOR)/g' \
-# 	    $< > $@
+PG_VERSION := @BUILD_FLAVOR@
 
 %:
 	dh $@
