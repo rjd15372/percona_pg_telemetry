@@ -1,5 +1,5 @@
-%define pg_name @BUILD_FLAVOR@%{nil}
-%{percona_pg_version_from_name}
+%define pg_version @BUILD_FLAVOR@%{nil}
+%define pg_name percona-postgresql%{pg_version}
 
 %global sname percona-pg-telemetry
 %global pgrel %{pg_version}
